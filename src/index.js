@@ -95,7 +95,7 @@ router.route('/ressource/:id')
   * @apiSuccess {String} number Phone number of the ressource (In international format without whitespace).
   * @apiSuccess {String} address Address of the ressource. Street name should be comma separated from zipcode and city.
   * @apiSuccess {String="restaurant","doctor"} type Type of the ressource.
-  * @apiSuccess {String} timeZone The ressource time zone.
+  * @apiSuccess {String} timeZone The ressource time zone (to interpret expressions such as "tomorrow")
   * @apiSuccess {Boolean} asyncConfirm True to tell the caller that his booking will be confirmed later.
   *
   * @apiSuccessExample Success-Response:
@@ -130,19 +130,19 @@ router.route('/ressource/:id/booking')
    * @apiGroup Booking
    *
    * @apiUse BookingCoreParameters
-   * @apiParam {String} startDay Starting day (inclusive) of the searched period for available slots. Formated in ISO-8601 dateTtime format (in ressource timezone if none specified). Number of searched days are free but must be at least one (7 recommended).
+   * @apiParam {String} startDay Starting day (inclusive) of the searched period for available slots. Formated in ISO-8601 date format (with specific time zone designator: 'Z' or '+/-HH:mm'). Number of searched days are free but must be at least one (7 recommended).
    *
-   * @apiSuccess {String} endDay Ending day (inclusive) of the searched period. Formated in ISO-8601 dateTtime format (in ressource timezone if none specified). Number of searched days are free but must be at least one (7 recommended).
-   * @apiSuccess {[String]} slots Available slots formated in ISO-8601 dateTtime format (in ressource timezone if none specified). Availability must take into account the given number of persons who would like to attend.
+   * @apiSuccess {String} endDay Ending day (inclusive) of the searched period. Formated in ISO-8601 date format (with specific time zone designator: 'Z' or '+/-HH:mm'). Number of searched days are free but must be at least one (7 recommended).
+   * @apiSuccess {[String]} slots Available slots formated in ISO-8601 date time format (with specific time zone designator: 'Z' or '+/-HH:mm'). Availability must take into account the given number of persons who would like to attend.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
-   *       "endDay": "2016-04-01",
+   *       "endDay": "2016-04-01Z",
    *       "slots": [
-   *         "2015-12-20T10:00:00",
-   *         "2015-12-20T10:30:00",
-   *         "2015-12-20T11:00:00"
+   *         "2015-12-20T10:00:00Z",
+   *         "2015-12-20T10:30:00Z",
+   *         "2015-12-20T11:00:00Z"
    *       ]
    *     }
    *
@@ -158,9 +158,7 @@ router.route('/ressource/:id/booking')
         var slots = [];
         // close on Saturday, Sunday and Monday
         if (date.getDay() !== 6 && date.getDay() !== 0 && date.getDay() !== 1) {
-          // random slots at 11h30, 12, 12h30, 13h
-          date.setHours(11, 30, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
+          // random slots at 12, 12h30, 13h
           date.setHours(12, 0, 0, 0);
           Math.random() > 0.5 && slots.push(date.toISOString());
           date.setHours(12, 30, 0, 0);
@@ -208,7 +206,7 @@ router.route('/ressource/:id/booking')
    * @apiGroup Booking
    *
    * @apiUse BookingCoreParameters
-   * @apiParam {Number} slot Datetime of the slot to book. Formated in ISO-8601 dateTtime format (in ressource timezone if none specified).
+   * @apiParam {Number} slot Datetime of the slot to book. Formated in ISO-8601 date time format (with specific time zone designator: 'Z' or '+/-HH:mm').
    * @apiParam {String} phoneNumber Contact phone number. Will be formatted as international phone number, without space.
    * @apiParam {String} name Contact name.
    *
