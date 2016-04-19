@@ -33,6 +33,15 @@ var ressources = {
   }
 };
 
+function _respond (req, res, data) {
+  console.log('->', req.path);
+  console.log('->', req.query);
+  console.log('<-', data);
+  console.log('');
+  res.setHeader('Content-Type', 'application/json');
+  res.json(data);
+}
+
 /**
  * @apiDefine RessourceNotFoundError
  *
@@ -69,10 +78,7 @@ router.route('/ressource')
    *     }
    */
   .get(function (req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    res.json({
-      ids: Object.keys(ressources)
-    });
+    _respond(req, res, { ids: Object.keys(ressources) });
   });
 
 // TODO better document openHours
@@ -109,12 +115,10 @@ router.route('/ressource/:id')
     res.setHeader('Content-Type', 'application/json');
     var id = parseInt(req.params.id, 10);
     if (ressources[id]) {
-      res.json(ressources[id]);
+      _respond(req, res, ressources[id]);
     } else {
-      res.status(404).json({
-        error: 'RessourceNotFound',
-        id: id
-      });
+      res.status(404);
+      _respond(req, res, { error: 'RessourceNotFound', id: id });
     }
   });
 
@@ -146,7 +150,6 @@ router.route('/ressource/:id/booking')
    * @apiError MissingParameter number or startDay parameter is missing.
    */
   .get(function (req, res) {
-    res.setHeader('Content-Type', 'application/json');
     var id = parseInt(req.params.id, 10);
     if (ressources[id]) {
       if (req.query.number && req.query.startDay) {
@@ -178,18 +181,20 @@ router.route('/ressource/:id/booking')
           date.setHours(22, 0, 0, 0);
           Math.random() > 0.5 && slots.push(date.toISOString());
         }
-        res.json({
+        _respond(req, res, {
           endDay: req.query.startDay, // one day range only
           slots: slots
         });
       } else {
-        res.status(404).json({
+        res.status(404);
+        _respond(req, res, {
           error: 'MissingParameter',
           query: req.query
         });
       }
     } else {
-      res.status(404).json({
+      res.status(404);
+      _respond(req, res, {
         error: 'RessourceNotFound',
         id: id
       });
@@ -219,21 +224,21 @@ router.route('/ressource/:id/booking')
    * @apiError MissingParameter number, slot, phoneNumber or name parameter is missing.
    */
   .post(function (req, res) {
-    res.setHeader('Content-Type', 'application/json');
     var id = parseInt(req.params.id, 10);
     if (ressources[id]) {
-      if (req.query.number && req.query.slotStart && req.phoneNumber && req.name && req.test) {
-        res.json({
-          confirmed: true
-        });
+      if (req.query.number && req.query.slot && req.query.phoneNumber && req.query.name) {
+        // 10 is a magic number for test coverage
+        _respond(req, res, { confirmed: req.query.number !== 10 });
       } else {
-        res.status(404).json({
+        res.status(404);
+        _respond(req, res, {
           error: 'MissingParameter',
           query: req.query
         });
       }
     } else {
-      res.status(404).json({
+      res.status(404);
+      _respond(req, res, {
         error: 'RessourceNotFound',
         id: id
       });
