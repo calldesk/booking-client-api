@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var fs = require('fs');
 
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -10,12 +11,15 @@ app.use(bodyParser.json());
 app.use('/doc', express.static('doc'));
 app.use(express.static('doc'));
 
-var port = process.env.PORT || 8081;
+var port = process.env.PORT || 8080;
 var router = express.Router();
+
+// TWILIO demo
+const TWILIO = true;
 
 // mock ressource database
 var ressources = {
-  1: {
+  '1': {
     name: 'Les Garçons',
     number: '+33493808790',
     address: '3 rue Centrale, 06300 Nice',
@@ -23,7 +27,7 @@ var ressources = {
     timeZone: 'Europe/Paris',
     asyncConfirm: true
   },
-  2: {
+  '2': {
     name: 'La Bulle',
     number: '+33140373451',
     address: '48 rue Louis Blanc, 75010 Paris',
@@ -51,14 +55,14 @@ function _respond (req, res, data) {
  *     HTTP/1.1 404 Not Found
  *     {
  *       "error": "RessourceNotFound",
- *       "id": 3909302
+ *       "id": '3909302'
  *     }
  */
 
  /**
   * @apiDefine BookingCoreParameters
   *
-  * @apiParam {Number} id Ressource unique ID.
+  * @apiParam {String} id Ressource unique ID.
   * @apiParam {Number} number Number of people who would like to attend.
   */
 
@@ -69,12 +73,12 @@ router.route('/ressource')
    * @apiName GetRessources
    * @apiGroup Ressource
    *
-   * @apiSuccess {[Number]} ids Ids of all ressources.
+   * @apiSuccess {[String]} ids Ids of all ressources.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
-   *       "ids": [1, 2, 3, 4, 5, 6]
+   *       "ids": ['1', '2', '3', '4', '5', '6']
    *     }
    */
   .get(function (req, res) {
@@ -113,12 +117,11 @@ router.route('/ressource/:id')
   */
   .get(function (req, res) {
     res.setHeader('Content-Type', 'application/json');
-    var id = parseInt(req.params.id, 10);
-    if (ressources[id]) {
-      _respond(req, res, ressources[id]);
+    if (ressources[req.params.id]) {
+      _respond(req, res, ressources[req.params.id]);
     } else {
       res.status(404);
-      _respond(req, res, { error: 'RessourceNotFound', id: id });
+      _respond(req, res, { error: 'RessourceNotFound', id: req.params.id });
     }
   });
 
@@ -150,8 +153,7 @@ router.route('/ressource/:id/booking')
    * @apiError MissingParameter number or startDay parameter is missing.
    */
   .get(function (req, res) {
-    var id = parseInt(req.params.id, 10);
-    if (ressources[id]) {
+    if (ressources[req.params.id]) {
       if (req.query.number && req.query.startDay) {
         var date = new Date(req.query.startDay);
         // build fake slots:
@@ -194,7 +196,7 @@ router.route('/ressource/:id/booking')
       res.status(404);
       _respond(req, res, {
         error: 'RessourceNotFound',
-        id: id
+        id: req.params.id
       });
     }
   })
@@ -222,8 +224,7 @@ router.route('/ressource/:id/booking')
    * @apiError MissingParameter number, slot, phoneNumber or name parameter is missing.
    */
   .post(function (req, res) {
-    var id = parseInt(req.params.id, 10);
-    if (ressources[id]) {
+    if (ressources[req.params.id]) {
       if (req.query.number && req.query.slot && req.query.phoneNumber && req.query.name) {
         // 10 is a magic number for test coverage
         _respond(req, res, { confirmed: req.query.number !== 10 });
@@ -238,7 +239,7 @@ router.route('/ressource/:id/booking')
       res.status(404);
       _respond(req, res, {
         error: 'RessourceNotFound',
-        id: id
+        id: req.params.id
       });
     }
   });
@@ -265,8 +266,22 @@ router.route('/call/:id')
    * @apiError MissingParameter id, to or reason parameter is missing.
    */
   .post(function (req, res) {
-    if (req.params.id && req.query.to && req.query.reason) {
-      _respond(req, res, { transfered: true });
+    if (req.params.id && req.query.reason) {
+      if (TWILIO) {
+        // {"sid": "AC6d2c3e992b2f078d096cc7c710592812", "token": "xxxxx"}
+        var auth = JSON.parse(fs.readFileSync('.twilio.json'));
+        var client = require('twilio')(auth.sid, auth.token);
+        client.calls(req.params.id).update({
+          url: 'http://82.225.244.55:8080/v1/twilio/redirect' +
+            '?reason=' + encodeURIComponent(req.query.reason),
+          method: 'GET'
+        }, function (err, call) {
+          console.log(err, call);
+          _respond(req, res, { transfered: !err });
+        });
+      } else {
+        _respond(req, res, { transfered: false });
+      }
     } else {
       res.status(404);
       _respond(req, res, {
@@ -275,6 +290,52 @@ router.route('/call/:id')
       });
     }
   });
+
+if (TWILIO) {
+  var xml = require('xml');
+  router.route('/twilio/answer').get(function (req, res) {
+    var callId = req.query['CallSid'];
+    // see https://www.twilio.com/docs/api/twiml/sip
+    var xmlRes = xml({
+      Response: [
+        {
+          Dial: [
+            {
+              Sip: 'sip:vgire151204092000@phone.plivo.com' +
+                '?callId=' + callId +
+                '&callerNumber=+33630703232' +
+                '&callerGuessedName=Pierre David' +
+                '&ressourceId=2' +
+                '&apiPath=http://localhost:8080/v1&apiToken=klet'
+            }
+          ]
+        }
+      ]
+    }, { declaration: true });
+    console.log(xmlRes);
+    res.setHeader('Content-Type', 'application/xml');
+    res.send(xmlRes);
+  });
+  router.route('/twilio/redirect').get(function (req, res) {
+    // TODO redirect to sip:mac151204192216@phone.plivo.com
+    // see https://www.twilio.com/docs/api/twiml/sip
+    var xmlRes = xml({
+      Response: [
+        {
+          Dial: [
+            {
+              Sip: 'sip:mac151204192216@phone.plivo.com' +
+                '?reason=' + encodeURIComponent(req.query.reason)
+            }
+          ]
+        }
+      ]
+    }, { declaration: true });
+    console.log(xmlRes);
+    res.setHeader('Content-Type', 'application/xml');
+    res.send(xmlRes);
+  });
+}
 
 app.use('/v1', router); // all of our routes will be prefixed with /api
 app.listen(port);
