@@ -8,7 +8,7 @@
     "Ressource",
     "GetBooking",
     "PostBooking",
-    "Call"
+    "PostCall"
   ],
   "template": {
     "forceLanguage": "en",
