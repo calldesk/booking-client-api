@@ -92,7 +92,7 @@ router.route('/ressource/:id')
   * @apiParam {Number} id Ressource unique ID.
   *
   * @apiSuccess {String} name Name of the ressource.
-  * @apiSuccess {String} number Phone number of the ressource (In international format without whitespace).
+  * @apiSuccess {String} [number] Phone number of the ressource (In international format without whitespace, optional for type "restaurant" or "doctor").
   * @apiSuccess {String} address Address of the ressource. Street name should be comma separated from zipcode and city.
   * @apiSuccess {String="restaurant","doctor"} type Type of the ressource.
   * @apiSuccess {String} timeZone The ressource time zone (to interpret expressions such as "tomorrow")
