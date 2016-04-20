@@ -252,8 +252,7 @@ router.route('/call/:id')
    * @apiGroup Call
    *
    * @apiParam {Number} id Call unique ID.
-   * @apiParam {String} to Destination to transfer the call to.
-   * @apiParam {String} reason The reason of the transfer.
+   * @apiParam {String="explicit","infirmFinalConfirmation","bookingNotConfirmed","notHeard","notUnderstood"} reason The reason of the transfer.
    *
    * @apiSuccess {Boolean} transfered True if call was successfully transfered. False otherwise.
    *
@@ -301,7 +300,9 @@ if (TWILIO) {
         {
           Dial: [
             {
-              Sip: 'sip:vgire151204092000@phone.plivo.com' +
+              Sip: 
+                // 'sip:9992522656@sip.tropo.com' +
+                'sip:vgire151204092000@phone.plivo.com' +
                 '?callId=' + callId +
                 '&callerNumber=+33630703232' +
                 '&callerGuessedName=Pierre David' +
@@ -312,7 +313,6 @@ if (TWILIO) {
         }
       ]
     }, { declaration: true });
-    console.log(xmlRes);
     res.setHeader('Content-Type', 'application/xml');
     res.send(xmlRes);
   });
