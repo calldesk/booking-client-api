@@ -243,6 +243,39 @@ router.route('/ressource/:id/booking')
     }
   });
 
+router.route('/call/:id')
+  /**
+   * @api {post} /call/:id Transfer call
+   * @apiVersion 0.0.1
+   * @apiName PostCall
+   * @apiGroup Call
+   *
+   * @apiParam {Number} id Call unique ID.
+   * @apiParam {String} to Destination to transfer the call to.
+   * @apiParam {String} reason The reason of the transfer.
+   *
+   * @apiSuccess {Boolean} transfered True if call was successfully transfered. False otherwise.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "transfered": true
+   *     }
+   *
+   * @apiError MissingParameter id, to or reason parameter is missing.
+   */
+  .post(function (req, res) {
+    if (req.params.id && req.query.to && req.query.reason) {
+      _respond(req, res, { transfered: true });
+    } else {
+      res.status(404);
+      _respond(req, res, {
+        error: 'MissingParameter',
+        query: req.query
+      });
+    }
+  });
+
 app.use('/v1', router); // all of our routes will be prefixed with /api
 app.listen(port);
 console.log('Listening on port ' + port);

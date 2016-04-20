@@ -7,7 +7,8 @@
   "order": [
     "Ressource",
     "GetBooking",
-    "PostBooking"
+    "PostBooking",
+    "Call"
   ],
   "template": {
     "forceLanguage": "en",
