@@ -252,7 +252,7 @@ router.route('/call/:id')
    * @apiGroup Call
    *
    * @apiParam {Number} id Call unique ID.
-   * @apiParam {String="explicit","infirmFinalConfirmation","bookingNotConfirmed","notHeard","notUnderstood"} reason The reason of the transfer.
+   * @apiParam {String="explicit","infirmFinalConfirmation","bookingNotConfirmed","notUnderstood"} reason The reason of the transfer.
    *
    * @apiSuccess {Boolean} transfered True if call was successfully transfered. False otherwise.
    *
@@ -307,7 +307,7 @@ if (TWILIO) {
                 '&callerNumber=+33630703232' +
                 '&callerGuessedName=Pierre David' +
                 '&ressourceId=2' +
-                '&apiPath=http://localhost:8080/v1&apiToken=klet'
+                '&apiPath=http://82.225.244.55:8080/v1&apiToken=klet'
             }
           ]
         }
