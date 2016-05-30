@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var fs = require('fs');
+var moment = require('moment');
 
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -155,31 +156,32 @@ router.route('/ressource/:id/booking')
   .get(function (req, res) {
     if (ressources[req.params.id]) {
       if (req.query.number && req.query.startDay) {
-        var date = new Date(req.query.startDay);
+        var date = moment.parseZone(req.query.startDay);
         // build fake slots:
         var slots = [];
         // close on Saturday, Sunday and Monday
-        if (date.getDay() !== 6 && date.getDay() !== 0 && date.getDay() !== 1) {
+        if (date.day() !== 6 && date.day() !== 0 && date.day() !== 1) {
+          date.minute(0); date.second(0); date.millisecond(0);
           // random slots at 12, 12h30, 13h
-          date.setHours(12, 0, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(12, 30, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(13, 0, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
+          date.hours(12); date.minute(0);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(12); date.minute(30);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(13); date.minute(0);
+          Math.random() > 0.5 && slots.push(date.format());
           // random slots at 19h30, 20h, 20h30, 21h, 21h30, 22h
-          date.setHours(19, 30, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(20, 0, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(20, 30, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(21, 0, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(21, 30, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
-          date.setHours(22, 0, 0, 0);
-          Math.random() > 0.5 && slots.push(date.toISOString());
+          date.hours(19); date.minute(30);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(20); date.minute(0);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(20); date.minute(30);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(21); date.minute(0);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(21); date.minute(30);
+          Math.random() > 0.5 && slots.push(date.format());
+          date.hours(22); date.minute(0);
+          Math.random() > 0.5 && slots.push(date.format());
         }
         _respond(req, res, {
           endDay: req.query.startDay, // one day range only
@@ -300,7 +302,7 @@ if (TWILIO) {
         {
           Dial: [
             {
-              Sip: 
+              Sip:
                 // 'sip:9992522656@sip.tropo.com' +
                 'sip:vgire151204092000@phone.plivo.com' +
                 '?callId=' + callId +
@@ -313,6 +315,7 @@ if (TWILIO) {
         }
       ]
     }, { declaration: true });
+    console.log(xmlRes);
     res.setHeader('Content-Type', 'application/xml');
     res.send(xmlRes);
   });
