@@ -1,6 +1,6 @@
 {
   "name": "client-api",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Mocked client API for demo",
   "main": "src/index.js",
   "devDependencies": {
