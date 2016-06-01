@@ -1,0 +1,14 @@
+# Logs
+npm-debug.log*
+
+# Dependency
+node_modules
+
+# Mac
+.DS_Store
+
+# Doc
+doc
+
+# Twilio auth
+.twilio.json
