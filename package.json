@@ -1,6 +1,6 @@
 {
   "name": "client-api",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Mocked client API for demo",
   "main": "src/index.js",
   "devDependencies": {
@@ -9,7 +9,8 @@
   "scripts": {
     "doc": "apidoc -i src/",
     "prestart": "npm run doc",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "postversion": "git push origin master && git push origin master --tags"
   },
   "pre-commit": [
     "doc"
