@@ -3,6 +3,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var moment = require('moment');
+var format = require('util').format;
 
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -16,7 +17,7 @@ var port = process.env.PORT || 8080;
 var router = express.Router();
 
 // TWILIO demo
-const TWILIO = true;
+const TWILIO = !!process.env.USE_TWILIO;
 
 // mock ressource database
 var ressources = {
@@ -268,21 +269,22 @@ router.route('/call/:id')
    */
   .post(function (req, res) {
     if (req.params.id && req.query.reason) {
-      if (TWILIO) {
-        // {"sid": "AC6d2c3e992b2f078d096cc7c710592812", "token": "xxxxx"}
-        var auth = JSON.parse(fs.readFileSync('.twilio.json'));
-        var client = require('twilio')(auth.sid, auth.token);
-        client.calls(req.params.id).update({
-          url: 'http://82.225.244.55:8080/v1/twilio/redirect' +
-            '?reason=' + encodeURIComponent(req.query.reason),
-          method: 'GET'
-        }, function (err, call) {
-          console.log(err, call);
-          _respond(req, res, { transfered: !err });
-        });
-      } else {
-        _respond(req, res, { transfered: false });
-      }
+      // TODO: redirect to TWILIO URL given by VSincent
+      // method:POST qs-say=msg
+      // {"sid": "AC6d2c3e992b2f078d096cc7c710592812", "token": "xxxxx"}
+      var secrets = JSON.parse(fs.readFileSync('.twilio.json'));
+      var client = require('twilio')(secrets.sid, secrets.token);
+      const msg = "Désolé mais personne n'est disponible pour le moment. Au revoir.";
+      const url = format('%s?reason=%s&say=%s', secrets.url, encodeURIComponent(req.query.reason), encodeURIComponent(msg));
+      console.info('transfer call#%s to %s', req.params.id, url);
+      client.calls(req.params.id).update({
+        url: url,
+        method: 'POST',
+        body: format('say=%s', encodeURIComponent(msg))
+      }, function (err, call) {
+        if (err) console.warn(err);
+        _respond(req, res, { transfered: !err });
+      });
     } else {
       res.status(404);
       _respond(req, res, {
