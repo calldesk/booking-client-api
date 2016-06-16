@@ -17,7 +17,7 @@ var port = process.env.PORT || 8080;
 var router = express.Router();
 
 // TWILIO demo
-const TWILIO = !!process.env.USE_TWILIO;
+// const TWILIO = !!process.env.USE_TWILIO;
 
 // mock ressource database
 var ressources = {
@@ -26,7 +26,7 @@ var ressources = {
     number: '+33493808790',
     address: '3 rue Centrale, 06300 Nice',
     type: 'restaurant',
-    timeZone: 'Europe/Paris',
+    timezone: 'Europe/Paris',
     asyncConfirm: true
   },
   '2': {
@@ -34,9 +34,16 @@ var ressources = {
     number: '+33140373451',
     address: '48 rue Louis Blanc, 75010 Paris',
     type: 'restaurant',
-    timeZone: 'Europe/Paris',
-    asyncConfirm: true
+    timezone: 'Europe/Paris',
   }
+  // '2': {
+  //   name: 'Delzongle',
+  //   number: '+33442380000',
+  //   address: '6 Rue Chastel, 13100 Aix-en-Provence',
+  //   type: 'doctor',
+  //   timezone: 'Europe/Paris',
+  //   asyncConfirm: true
+  // }
 };
 
 function _respond (req, res, data) {
@@ -101,7 +108,7 @@ router.route('/ressource/:id')
   * @apiSuccess {String} [number] Phone number of the ressource (In international format without whitespace, optional for type "restaurant" or "doctor").
   * @apiSuccess {String} address Address of the ressource. Street name should be comma separated from zipcode and city.
   * @apiSuccess {String="restaurant","doctor"} type Type of the ressource.
-  * @apiSuccess {String} timeZone The ressource time zone (to interpret expressions such as "tomorrow")
+  * @apiSuccess {String} timezone The ressource time zone (to interpret expressions such as "tomorrow")
   * @apiSuccess {Boolean} asyncConfirm True to tell the caller that his booking will be confirmed later.
   *
   * @apiSuccessExample Success-Response:
@@ -111,7 +118,7 @@ router.route('/ressource/:id')
   *       "number": "+33493808790",
   *       "address": "3 rue Centrale, 06300 Nice",
   *       "type": "restaurant",
-  *       "timeZone": 'Europe/Paris',
+  *       "timezone": 'Europe/Paris',
   *       "asyncConfirm": true
   *     }
   *
@@ -269,21 +276,21 @@ router.route('/call/:id')
    */
   .post(function (req, res) {
     if (req.params.id && req.query.reason) {
-      // TODO: redirect to TWILIO URL given by VSincent
-      // method:POST qs-say=msg
-      // {"sid": "AC6d2c3e992b2f078d096cc7c710592812", "token": "xxxxx"}
+      const callId = req.params.id;
       var secrets = JSON.parse(fs.readFileSync('.twilio.json'));
       var client = require('twilio')(secrets.sid, secrets.token);
-      const msg = "Désolé mais personne n'est disponible pour le moment. Au revoir.";
-      const url = format('%s?reason=%s&say=%s', secrets.url, encodeURIComponent(req.query.reason), encodeURIComponent(msg));
-      console.info('transfer call#%s to %s', req.params.id, url);
-      client.calls(req.params.id).update({
+      const msg = "Désolé mais personne n'est disponible pour le moment. Merci de votre appel, au revoir et à bientôt.";
+      const url = format('%s?say=%s', secrets.url, encodeURIComponent(msg));
+      console.info('transfer call#%s to %s', callId, url);
+      // encodeURIComponent(req.query.reason),
+      client.calls(callId).update({
         url: url,
-        method: 'POST',
-        body: format('say=%s', encodeURIComponent(msg))
+        method: 'POST'
       }, function (err, call) {
         if (err) console.warn(err);
-        _respond(req, res, { transfered: !err });
+        _respond(req, res, {
+          transfered: !err
+        });
       });
     } else {
       res.status(404);
@@ -294,53 +301,53 @@ router.route('/call/:id')
     }
   });
 
-if (TWILIO) {
-  var xml = require('xml');
-  router.route('/twilio/answer').get(function (req, res) {
-    var callId = req.query['CallSid'];
-    // see https://www.twilio.com/docs/api/twiml/sip
-    var xmlRes = xml({
-      Response: [
-        {
-          Dial: [
-            {
-              Sip:
-                // 'sip:9992522656@sip.tropo.com' +
-                'sip:vgire151204092000@phone.plivo.com' +
-                '?callId=' + callId +
-                '&callerNumber=+33630703232' +
-                '&callerGuessedName=Pierre David' +
-                '&ressourceId=2' +
-                '&apiPath=http://82.225.244.55:8080/v1&apiToken=klet'
-            }
-          ]
-        }
-      ]
-    }, { declaration: true });
-    console.log(xmlRes);
-    res.setHeader('Content-Type', 'application/xml');
-    res.send(xmlRes);
-  });
-  router.route('/twilio/redirect').get(function (req, res) {
-    // TODO redirect to sip:mac151204192216@phone.plivo.com
-    // see https://www.twilio.com/docs/api/twiml/sip
-    var xmlRes = xml({
-      Response: [
-        {
-          Dial: [
-            {
-              Sip: 'sip:mac151204192216@phone.plivo.com' +
-                '?reason=' + encodeURIComponent(req.query.reason)
-            }
-          ]
-        }
-      ]
-    }, { declaration: true });
-    console.log(xmlRes);
-    res.setHeader('Content-Type', 'application/xml');
-    res.send(xmlRes);
-  });
-}
+// if (TWILIO) {
+//   var xml = require('xml');
+//   router.route('/twilio/answer').get(function (req, res) {
+//     var callId = req.query['CallSid'];
+//     // see https://www.twilio.com/docs/api/twiml/sip
+//     var xmlRes = xml({
+//       Response: [
+//         {
+//           Dial: [
+//             {
+//               Sip:
+//                 // 'sip:9992522656@sip.tropo.com' +
+//                 'sip:vgire151204092000@phone.plivo.com' +
+//                 '?callId=' + callId +
+//                 '&callerNumber=+33630703232' +
+//                 '&callerGuessedName=Pierre David' +
+//                 '&ressourceId=2' +
+//                 '&apiPath=http://82.225.244.55:8080/v1&apiToken=klet'
+//             }
+//           ]
+//         }
+//       ]
+//     }, { declaration: true });
+//     console.log(xmlRes);
+//     res.setHeader('Content-Type', 'application/xml');
+//     res.send(xmlRes);
+//   });
+//   router.route('/twilio/redirect').get(function (req, res) {
+//     // TODO redirect to sip:mac151204192216@phone.plivo.com
+//     // see https://www.twilio.com/docs/api/twiml/sip
+//     var xmlRes = xml({
+//       Response: [
+//         {
+//           Dial: [
+//             {
+//               Sip: 'sip:mac151204192216@phone.plivo.com' +
+//                 '?reason=' + encodeURIComponent(req.query.reason)
+//             }
+//           ]
+//         }
+//       ]
+//     }, { declaration: true });
+//     console.log(xmlRes);
+//     res.setHeader('Content-Type', 'application/xml');
+//     res.send(xmlRes);
+//   });
+// }
 
 app.use('/v1', router); // all of our routes will be prefixed with /api
 app.listen(port);

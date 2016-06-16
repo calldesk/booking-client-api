@@ -12,3 +12,6 @@ doc
 
 # Twilio auth
 .twilio.json
+
+*.zip
+*.swp
