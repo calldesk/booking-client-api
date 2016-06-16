@@ -1,13 +1,13 @@
 {
   "name": "client-api",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Mocked client API for demo",
   "main": "lib/index.js",
   "scripts": {
     "test": "semistandard && flow check",
     "doc": "apidoc -i src/",
     "compile": "babel -d lib/ src/",
-    "version": "npm run compile && npm run doc && && git add lib",
+    "version": "npm run compile && npm run doc && git add lib",
     "postversion": "git push origin master && git push origin master --tags && ./scripts/uploadS3.sh",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
