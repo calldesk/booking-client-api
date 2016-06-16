@@ -2,18 +2,20 @@
   "name": "client-api",
   "version": "0.1.1",
   "description": "Mocked client API for demo",
-  "main": "src/index.js",
-  "devDependencies": {
-    "pre-commit": "^1.1.2"
-  },
+  "main": "lib/index.js",
   "scripts": {
+    "test": "semistandard && flow check",
     "doc": "apidoc -i src/",
+    "compile": "babel -d lib/ src/",
+    "version": "npm run compile && npm run doc && && git add lib",
+    "postversion": "git push origin master && git push origin master --tags && ./scripts/uploadS3.sh",
     "prestart": "npm run doc",
-    "start": "node src/index.js",
-    "postversion": "git push origin master && git push origin master --tags"
+    "start": "node lib/index.js",
+    "dev-start": "babel-node src/index.js"
   },
   "pre-commit": [
-    "doc"
+    "doc",
+    "test"
   ],
   "author": "Vincent Gire",
   "license": "ISC",
@@ -24,5 +26,12 @@
     "moment": "^2.13.0",
     "twilio": "^2.9.1",
     "xml": "^1.0.1"
+  },
+  "devDependencies": {
+    "pre-commit": "^1.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/booking-client-api"
   }
 }

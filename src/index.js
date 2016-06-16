@@ -1,9 +1,12 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var fs = require('fs');
-var moment = require('moment');
-var format = require('util').format;
+// @flow
+'use strict';
+
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const moment = require('moment');
+const format = require('util').format;
 
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -13,14 +16,15 @@ app.use(bodyParser.json());
 app.use('/doc', express.static('doc'));
 app.use(express.static('doc'));
 
-var port = process.env.PORT || 8080;
-var router = express.Router();
+const port = process.env.PORT || 8080;
+const router = express.Router();
+const _TWILIO_SECRETS = JSON.parse(fs.readFileSync('.twilio.json', { encoding: 'utf8' }));
 
 // TWILIO demo
 // const TWILIO = !!process.env.USE_TWILIO;
 
 // mock ressource database
-var ressources = {
+const ressources = {
   '1': {
     name: 'Les Garçons',
     number: '+33493808790',
@@ -35,6 +39,7 @@ var ressources = {
     address: '48 rue Louis Blanc, 75010 Paris',
     type: 'restaurant',
     timezone: 'Europe/Paris',
+    asyncConfirm: true
   }
   // '2': {
   //   name: 'Delzongle',
@@ -164,7 +169,7 @@ router.route('/ressource/:id/booking')
   .get(function (req, res) {
     if (ressources[req.params.id]) {
       if (req.query.number && req.query.startDay) {
-        var date = moment.parseZone(req.query.startDay);
+        const date = moment.parseZone(req.query.startDay);
         // build fake slots:
         var slots = [];
         // close on Saturday, Sunday and Monday
@@ -277,10 +282,9 @@ router.route('/call/:id')
   .post(function (req, res) {
     if (req.params.id && req.query.reason) {
       const callId = req.params.id;
-      var secrets = JSON.parse(fs.readFileSync('.twilio.json'));
-      var client = require('twilio')(secrets.sid, secrets.token);
+      const client = require('twilio')(_TWILIO_SECRETS.sid, _TWILIO_SECRETS.token);
       const msg = "Désolé mais personne n'est disponible pour le moment. Merci de votre appel, au revoir et à bientôt.";
-      const url = format('%s?say=%s', secrets.url, encodeURIComponent(msg));
+      const url = format('%s?say=%s', _TWILIO_SECRETS.url, encodeURIComponent(msg));
       console.info('transfer call#%s to %s', callId, url);
       // encodeURIComponent(req.query.reason),
       client.calls(callId).update({

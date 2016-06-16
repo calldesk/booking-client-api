@@ -19,5 +19,11 @@ npm install --production
 cd ..
 echo "Packing $NAME-prod-v$VERSION.zip..."
 zip -r "$NAME-prod-v$VERSION.zip" "$NAME-prod" -x "$@"
-mv "$NAME-prod-v$VERSION.zip" ..
 rm -rf "$NAME-prod"
+mv "$NAME-prod-v$VERSION.zip" ..
+# http://docs.aws.amazon.com/cli/latest/reference/s3/index.html
+# echo "Uploading to S3..."
+# aws --region eu-central-1 s3 cp "$NAME-prod-v$VERSION.zip" "s3://$BUCKET/"
+# aws --region eu-central-1 s3 cp "s3://$BUCKET/$NAME-prod-v$VERSION.zip" "s3://$BUCKET/$NAME-prod-latest.zip"
+# echo "Cleaning..."
+# rm "$NAME-prod-v$VERSION.zip"
