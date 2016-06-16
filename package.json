@@ -1,6 +1,6 @@
 {
   "name": "client-api",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Mocked client API for demo",
   "main": "lib/index.js",
   "scripts": {
@@ -17,8 +17,6 @@
     "doc",
     "test"
   ],
-  "author": "Vincent Gire",
-  "license": "ISC",
   "dependencies": {
     "apidoc": "^0.15.1",
     "body-parser": "^1.15.0",
@@ -34,8 +32,18 @@
     "pre-commit": "^1.1.2",
     "sinon": "^1.17.4"
   },
+  "semistandard": {
+    "parser": "babel-eslint",
+    "globals": [],
+    "ignore": [
+      "lib/*",
+      "doc/*"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/booking-client-api"
-  }
+  },
+  "author": "Vincent Gire",
+  "license": "ISC"
 }
