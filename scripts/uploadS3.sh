@@ -9,5 +9,5 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CURRENT_PATH=`pwd`
 NAME=`node -p -e "require('$SCRIPT_PATH/../package.json').name"`
 cd $SCRIPT_PATH
-./packS3.sh "$NAME-prod/src/*" "$NAME-prod/test/*" "$NAME-prod/scripts/*" "$NAME-prod/.*"
+./packS3.sh "$NAME-prod/src/*" "$NAME-prod/test/*" "$NAME-prod/scripts/*" "$NAME-prod/doc/*" "$NAME-prod/.*"
 cd $CURRENT_PATH

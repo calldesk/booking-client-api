@@ -1,5 +1,5 @@
 {
-  "name": "client-api",
+  "name": "booking-client-api",
   "version": "0.1.6",
   "description": "Mocked client API for demo",
   "main": "lib/index.js",
