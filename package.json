@@ -4,11 +4,11 @@
   "description": "Mocked client API for demo",
   "main": "lib/index.js",
   "scripts": {
-    "test": "semistandard && flow check",
+    "test": "semistandard && flow check && mocha --compilers js:babel-register",
     "doc": "apidoc -i src/",
     "compile": "babel -d lib/ src/",
     "version": "npm run compile && npm run doc && git add lib",
-    "postversion": "git push origin master && git push origin master --tags && ./scripts/uploadS3.sh",
+    "postversion": "git push origin master && git push origin master --tags",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
     "dev-start": "babel-node src/index.js"
@@ -22,6 +22,7 @@
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "moment": "^2.13.0",
+    "moment-timezone": "^0.5.4",
     "twilio": "^2.9.1",
     "xml": "^1.0.1"
   },
