@@ -58,11 +58,11 @@ const ressources = {
     timezone: 'Europe/Paris',
     asyncConfirm: true,
     calendar: [
-      [{start: '10:00', end: '20:00', duration: 30, prob: 0.3}], // M
-      [{start: '09:00', end: '20:00', duration: 30, prob: 0.4}], // T
-      [{start: '09:00', end: '20:00', duration: 30, prob: 0.3}], // W
-      [{start: '09:00', end: '20:00', duration: 30, prob: 0.4}], // T
-      [{start: '09:00', end: '17:00', duration: 30, prob: 0.3}], // F
+      [{start: '10:00', end: '20:00', duration: 60, prob: 0.3}], // M
+      [{start: '09:00', end: '20:00', duration: 60, prob: 0.4}], // T
+      [{start: '09:00', end: '20:00', duration: 60, prob: 0.3}], // W
+      [{start: '09:00', end: '20:00', duration: 60, prob: 0.4}], // T
+      [{start: '09:00', end: '17:00', duration: 60, prob: 0.3}], // F
       [],                                                        // S
       []                                                         // S
     ]
