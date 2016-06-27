@@ -6,8 +6,8 @@
   "scripts": {
     "test": "semistandard && flow check && mocha --compilers js:babel-register",
     "doc": "apidoc -i src/",
-    "compile": "babel -d lib/ src/",
-    "version": "npm run compile && npm run doc && git add lib",
+    "install": "babel -d lib/ src/",
+    "version": "npm run doc",
     "postversion": "git push origin master && git push origin master --tags",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
