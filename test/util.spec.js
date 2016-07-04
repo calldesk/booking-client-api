@@ -42,7 +42,7 @@ describe('getNextSlots', () => {
   });
   it('should preserve timezone', () => {
     // const start = '2016-06-20T23:00:00.000+02:00'; // monday
-    const start = '2016-07-04T18:25:39+02:00'; // monday
+    const start = '2016-07-04T19:48:35+02:00'; // monday
     const end = moment(start).add(1, 'd').format();   // tuesday
     const slots = getNextSlots(start, end, CALENDAR);
     expect(slots.length).to.equal(18);

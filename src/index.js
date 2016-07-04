@@ -10,6 +10,7 @@ const format = require('util').format;
 const getNextSlots = require('./util').getNextSlots;
 
 moment.locale('fr');
+moment.tz.setDefault('Europe/Paris');
 
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
