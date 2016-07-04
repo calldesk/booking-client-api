@@ -4,10 +4,11 @@
   "description": "Mocked client API for demo",
   "main": "lib/index.js",
   "scripts": {
-    "test": "semistandard && flow check && mocha --compilers js:babel-register",
+    "test": "npm run syntax && mocha --compilers js:babel-register",
+    "syntax": "semistandard && flow check",
     "doc": "apidoc -i src/",
     "install": "babel -d lib/ src/",
-    "version": "npm run doc",
+    "preversion": "npm run test && npm run doc",
     "postversion": "git push origin master && git push origin master --tags",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
@@ -15,7 +16,7 @@
   },
   "pre-commit": [
     "doc",
-    "test"
+    "syntax"
   ],
   "dependencies": {
     "apidoc": "^0.15.1",
