@@ -2,7 +2,7 @@
 // @flow
 'use strict';
 const moment = require('moment-timezone');
-const expect = require('chai').expect;
+const expect = require('expect.js');
 const getNextSlots = require('../src/util').getNextSlots;
 
 const CALENDAR = [
@@ -39,5 +39,31 @@ describe('getNextSlots', () => {
     const end = '2016-06-22T16:30:00+02:00';
     const slots = getNextSlots(start, end, CALENDAR);
     expect(slots.length).to.equal(8 + 7);
+  });
+  it('should preserve timezone', () => {
+    // const start = '2016-06-20T23:00:00.000+02:00'; // monday
+    const start = '2016-07-04T18:25:39+02:00'; // monday
+    const end = moment(start).add(1, 'd').format();   // tuesday
+    const slots = getNextSlots(start, end, CALENDAR);
+    expect(slots.length).to.equal(18);
+    expect(slots).to.eql([
+      '2016-07-05T09:00:00+02:00',
+      '2016-07-05T09:30:00+02:00',
+      '2016-07-05T10:00:00+02:00',
+      '2016-07-05T10:30:00+02:00',
+      '2016-07-05T11:00:00+02:00',
+      '2016-07-05T11:30:00+02:00',
+      '2016-07-05T12:00:00+02:00',
+      '2016-07-05T12:30:00+02:00',
+      '2016-07-05T13:00:00+02:00',
+      '2016-07-05T13:30:00+02:00',
+      '2016-07-05T14:00:00+02:00',
+      '2016-07-05T14:30:00+02:00',
+      '2016-07-05T15:00:00+02:00',
+      '2016-07-05T15:30:00+02:00',
+      '2016-07-05T16:00:00+02:00',
+      '2016-07-05T16:30:00+02:00',
+      '2016-07-05T17:00:00+02:00',
+      '2016-07-05T17:30:00+02:00']);
   });
 });

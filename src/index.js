@@ -200,12 +200,12 @@ router.route('/ressource/:id/booking')
     if (typeof number !== 'number' || number.toString() === 'NaN') {
       number = 7;
     }
-    console.log('n day: ', number);
     if (req.query.startDay) {
-      const endDay = moment(req.query.startDay).add(number, 'd');
+      const endDay = moment(req.query.startDay).add(number, 'd').format();
+      console.log('end day: ', endDay);
       _respond(req, res, {
-        endDay: endDay.format(), // one day range only
-        slots: getNextSlots(req.query.startDay, endDay.format(), ressource.calendar)
+        endDay: endDay,
+        slots: getNextSlots(req.query.startDay, endDay, ressource.calendar)
       });
     } else {
       res.status(404);

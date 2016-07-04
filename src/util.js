@@ -18,12 +18,12 @@ module.exports.getNextSlots = function (start: string, end: string, calendar: Ar
     calendar[wd].forEach((slot) => {
       const sGps = /(\d{2}):(\d{2})/.exec(slot.start);
       const eGps = /(\d{2}):(\d{2})/.exec(slot.end);
-      const slotStart = moment(start).add(i, 'd').hour(parseInt(sGps[1], 10)).minute(parseInt(sGps[2], 10));
+      const slotStart = moment(start).add(i, 'd').hour(parseInt(sGps[1], 10)).minute(parseInt(sGps[2], 10)).second(0);
       if (slotStart > mEnd || done) {
         done = true;
         return;
       }
-      const slotEnd = moment(start).add(i, 'd').hour(parseInt(eGps[1], 10)).minute(parseInt(eGps[2], 10));
+      const slotEnd = moment(start).add(i, 'd').hour(parseInt(eGps[1], 10)).minute(parseInt(eGps[2], 10)).second(0);
       assert(slotEnd > slotStart, 'start must be lt end...');
       /* eslint-disable no-unmodified-loop-condition */
       while (mStart > slotStart) {
