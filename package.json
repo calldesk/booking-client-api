@@ -16,7 +16,6 @@
     "dev-start": "babel-node src/index.js"
   },
   "pre-commit": [
-    "doc",
     "syntax"
   ],
   "dependencies": {
