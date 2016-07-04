@@ -8,10 +8,11 @@
     "syntax": "semistandard && flow check",
     "doc": "apidoc -i src/",
     "install": "babel -d lib/ src/",
-    "preversion": "npm run test && npm run doc",
+    "preversion": "npm run coverage && npm run doc",
     "postversion": "git push origin master && git push origin master --tags",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
+    "coverage": "babel-istanbul cover _mocha && babel-istanbul check-coverage --statement 90",
     "dev-start": "babel-node src/index.js"
   },
   "pre-commit": [
