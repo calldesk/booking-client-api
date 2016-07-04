@@ -29,13 +29,12 @@ module.exports.getNextSlots = function (start: string, end: string, calendar: Ar
       while (mStart > slotStart) {
         slotStart.add(slot.duration, 'minute');
       }
-      /* eslint-enable no-unmodified-loop-condition */
-      while (true) {
+      while (slotStart < slotEnd) {
         if (moment(slotStart).add(slot.duration, 'minute') > mEnd) break;
         if (Math.random() >= (1 - slot.prob)) slots.push(slotStart.format());
         slotStart.add(slot.duration, 'minute');
-        if (slotStart >= slotEnd) break;
       }
+      /* eslint-enable no-unmodified-loop-condition */
     });
   }
   return slots;

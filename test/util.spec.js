@@ -15,6 +15,16 @@ const CALENDAR = [
   []
 ];
 
+const DOCTOR_CALENDAR = [
+  [{start: '10:00', end: '20:00', duration: 60, prob: 1}], // M
+  [{start: '09:00', end: '20:00', duration: 60, prob: 1}], // T
+  [{start: '09:00', end: '20:00', duration: 60, prob: 1}], // W
+  [{start: '09:00', end: '20:00', duration: 60, prob: 1}], // T
+  [{start: '09:00', end: '17:00', duration: 60, prob: 1}], // F
+  [],                                                        // S
+  []                                                         // S
+];
+
 describe('getNextSlots', () => {
   it('should return no slot on monday', () => {
     const start = '2016-06-20T11:00:00+02:00'; // monday
@@ -65,5 +75,23 @@ describe('getNextSlots', () => {
       '2016-07-05T16:30:00+02:00',
       '2016-07-05T17:00:00+02:00',
       '2016-07-05T17:30:00+02:00']);
+  });
+
+  it('should NOT propose slots after 20h', () => {
+    const start = '2016-07-04T20:09:47+02:00';
+    const end = moment(start).add(1, 'd').format();
+    const slots = getNextSlots(start, end, DOCTOR_CALENDAR);
+    expect(slots).to.eql([
+      '2016-07-05T09:00:00+02:00',
+      '2016-07-05T10:00:00+02:00',
+      '2016-07-05T11:00:00+02:00',
+      '2016-07-05T12:00:00+02:00',
+      '2016-07-05T13:00:00+02:00',
+      '2016-07-05T14:00:00+02:00',
+      '2016-07-05T15:00:00+02:00',
+      '2016-07-05T16:00:00+02:00',
+      '2016-07-05T17:00:00+02:00',
+      '2016-07-05T18:00:00+02:00',
+      '2016-07-05T19:00:00+02:00']);
   });
 });

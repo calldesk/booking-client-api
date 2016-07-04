@@ -203,7 +203,6 @@ router.route('/ressource/:id/booking')
     }
     if (req.query.startDay) {
       const endDay = moment(req.query.startDay).add(number, 'd').format();
-      console.log('end day: ', endDay);
       _respond(req, res, {
         endDay: endDay,
         slots: getNextSlots(req.query.startDay, endDay, ressource.calendar)
