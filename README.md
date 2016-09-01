@@ -18,7 +18,3 @@ Nodejs code example
   npm install
   npm start
   ```
-
-# TODO:
- - rename `call` endpoint to `transfer`
- - remove `TWILIO` stuffs
