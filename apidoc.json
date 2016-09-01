@@ -6,9 +6,10 @@
   "url" : "http://api.client.com/v1",
   "order": [
     "Ressource",
-    "GetBooking",
-    "PostBooking",
-    "PostCall"
+    "Slot",
+    "GetSlot",
+    "BookSlot",
+    "Call"
   ],
   "template": {
     "forceLanguage": "en",

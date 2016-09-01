@@ -1,6 +1,6 @@
 {
   "name": "booking-client-api",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Mocked client API for demo",
   "main": "lib/index.js",
   "scripts": {

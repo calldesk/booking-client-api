@@ -79,74 +79,30 @@ function _respond (req, res, data) {
   res.json(data);
 }
 
-/**
- * @apiDefine RessourceNotFoundError
- *
- * @apiError RessourceNotFound The id of the Ressource was not found.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "error": "RessourceNotFound",
- *       "id": '3909302'
- *     }
- */
-
- /**
-  * @apiDefine BookingCoreParameters
-  *
-  * @apiParam {String} id Ressource unique ID.
-  * @apiParam {Number} number Number of people who would like to attend.
-  */
-
-router.route('/ressource')
-  /**
-   * @api {get} /ressource Request all ressources ids [OPTION]
-   * @apiVersion 0.0.1
-   * @apiName GetRessources
-   * @apiGroup Ressource
-   *
-   * @apiSuccess {[String]} ids Ids of all ressources.
-   *
-   * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "ids": ['1', '2', '3', '4', '5', '6']
-   *     }
-   */
-  .get(function (req, res) {
-    _respond(req, res, { ids: Object.keys(ressources) });
-  });
-
 // TODO better document openHours
 router.route('/ressource/:id')
  /**
-  * @api {get} /ressource/:id Request Ressource information
-  * @apiVersion 0.0.1
+  * @api {get} /ressource/:ressourceId Request Ressource information
+  * @apiVersion 1.0.0
   * @apiName GetRessource
   * @apiGroup Ressource
+  * @apiDescription Returns information for a specific ressource such as a doctor.
   *
-  * @apiParam {Number} id Ressource unique ID.
+  * @apiParam {String} ressourceId Unique ID of the ressource (must be passed in SIP headers during call transfer).
   *
-  * @apiSuccess {String} name Name of the ressource.
-  * @apiSuccess {String} [number] Phone number of the ressource (In international format without whitespace, optional for type "restaurant" or "doctor").
+  * @apiSuccess {String} name Name of the ressource, the doctor`s name for example.
   * @apiSuccess {String} address Address of the ressource. Street name should be comma separated from zipcode and city.
-  * @apiSuccess {String="restaurant","doctor"} type Type of the ressource.
-  * @apiSuccess {String} timezone The ressource time zone (to interpret expressions such as "tomorrow")
-  * @apiSuccess {Boolean} asyncConfirm True to tell the caller that his booking will be confirmed later.
+  * @apiSuccess {String} timezone The timezone of the ressource (to interpret expressions such as "tomorrow", see <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones" target="_blank">this article</a> for more information)
   *
   * @apiSuccessExample Success-Response:
   *     HTTP/1.1 200 OK
   *     {
-  *       "name": "Les Garçons",
-  *       "number": "+33493808790",
+  *       "name": "Durant",
   *       "address": "3 rue Centrale, 06300 Nice",
-  *       "type": "restaurant",
   *       "timezone": 'Europe/Paris',
-  *       "asyncConfirm": true
   *     }
   *
-  * @apiUse RessourceNotFoundError
+  * @apiError 404 <code>ressourceId</code> not found.
   */
   .get(function (req, res) {
     res.setHeader('Content-Type', 'application/json');
@@ -158,23 +114,26 @@ router.route('/ressource/:id')
     }
   });
 
-router.route('/ressource/:id/booking')
+router.route('/ressource/:id/slot')
   /**
-   * @api {get} /ressource/:id/booking Request available slots for given number of persons
-   * @apiVersion 0.0.1
-   * @apiName GetBooking
-   * @apiGroup Booking
+   * @api {get} /ressource/:ressourceId/slot?startDate=<YYYY-MM-DDTHH:mm:ssZ> Request available slots
+   * @apiVersion 1.0.0
+   * @apiName GetSlot
+   * @apiGroup Slot
+   * @apiDescription Returns all available slots for a given period.
+   * The period starts at <code>startDate</code> and may have a custom duration (example: 7 days).
+   * The end of the period must be returned in the response body (see below).
    *
-   * @apiUse BookingCoreParameters
-   * @apiParam {String} startDay Starting day (inclusive) of the searched period for available slots. Formated in ISO-8601 date format (with specific time zone designator: 'Z' or '+/-HH:mm'). Number of searched days are free but must be at least one (7 recommended).
+   * @apiParam {String} ressourceId Unique ID of the ressource
+   * @apiParam {String} startDate Starting date (inclusive) of the searched period for available slots. Formated in <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a> date format (with specific time zone designator: 'Z' or '+/-HH:mm'). Number of searched days are free but must be at least one (7 recommended).
    *
-   * @apiSuccess {String} endDay Ending day (inclusive) of the searched period. Formated in ISO-8601 date format (with specific time zone designator: 'Z' or '+/-HH:mm'). Number of searched days are free but must be at least one (7 recommended).
-   * @apiSuccess {[String]} slots Available slots formated in ISO-8601 date time format (with specific time zone designator: 'Z' or '+/-HH:mm'). Availability must take into account the given number of persons who would like to attend.
+   * @apiSuccess {String} endDate Ending date (inclusive) of the searched period. Formated in <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a> date format (with specific time zone designator: 'Z' or '+/-HH:mm'). Number of searched days are free but must be at least one (7 recommended).
+   * @apiSuccess {[String]} slots Available slots formated in <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a> date time format (with specific time zone designator: 'Z' or '+/-HH:mm').
    *
    * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
+   *     HTTP 200 OK
    *     {
-   *       "endDay": "2016-04-01Z",
+   *       "endDate": "2015-12-21T00:00:00Z",
    *       "slots": [
    *         "2015-12-20T10:00:00Z",
    *         "2015-12-20T10:30:00Z",
@@ -182,8 +141,8 @@ router.route('/ressource/:id/booking')
    *       ]
    *     }
    *
-   * @apiUse RessourceNotFoundError
-   * @apiError MissingParameter number or startDay parameter is missing.
+   * @apiError 400 Not found, parameter <code>parameterName</code> is missing or invalid.
+   * @apiError 404 No ressource found for the given <code>ressourceId</code>.
    */
   .get(function (req, res) {
     const ressource = ressources[req.params.id];
@@ -202,10 +161,10 @@ router.route('/ressource/:id/booking')
       number = 7;
     }
     if (req.query.startDay) {
-      const endDay = moment(req.query.startDay).add(number, 'd').format();
+      const endDate = moment(req.query.startDay).add(number, 'd').format();
       _respond(req, res, {
-        endDay: endDay,
-        slots: getNextSlots(req.query.startDay, endDay, ressource.calendar)
+        endDate: endDate,
+        slots: getNextSlots(req.query.startDay, endDate, ressource.calendar)
       });
     } else {
       res.status(404);
@@ -217,26 +176,22 @@ router.route('/ressource/:id/booking')
   })
 
   /**
-   * @api {post} /ressource/:id/booking Book ressource
-   * @apiVersion 0.0.1
-   * @apiName PostBooking
-   * @apiGroup Booking
+   * @api {post} /ressource/:ressourceId/slot/:slotId Book a slot
+   * @apiVersion 1.0.0
+   * @apiName BookSlot
+   * @apiGroup Slot
    *
-   * @apiUse BookingCoreParameters
-   * @apiParam {Number} slot Datetime of the slot to book. Formated in ISO-8601 date time format (with specific time zone designator: 'Z' or '+/-HH:mm').
+   * @apiParam {String} ressourceId Unique ID of the ressource
+   * @apiParam {String} slotId Datetime of the slot to book, formated in <a href="https://en.wikipedia.org/wiki/ISO_8601" target="_blank">ISO-8601</a> date time format (with specific time zone designator: 'Z' or '+/-HH:mm').
    * @apiParam {String} phoneNumber Contact phone number. Will be formatted as international phone number, without space.
    * @apiParam {String} name Contact name.
    *
-   * @apiSuccess {Boolean} confirmed True if ressource was successfully booked. False otherwise.
-   *
    * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "confirmed": true
-   *     }
+   *     HTTP 200 OK
    *
-   * @apiUse RessourceNotFoundError
-   * @apiError MissingParameter number, slot, phoneNumber or name parameter is missing.
+   * @apiError 400 bad request, missing parameter <code>parameterName</code>.
+   * @apiError 404 No ressource found for the given <code>ressourceId</code>.
+   * @apiError 409 Request could not be processed because selected slot has been booked already.
    */
   .post(function (req, res) {
     if (ressources[req.params.id]) {
@@ -261,23 +216,19 @@ router.route('/ressource/:id/booking')
 
 router.route('/call/:id')
   /**
-   * @api {post} /call/:id Transfer call
-   * @apiVersion 0.0.1
-   * @apiName PostCall
+   * @api {post} /call/:callId Transfer
+   * @apiVersion 1.0.0
+   * @apiName TransferCall
    * @apiGroup Call
    *
-   * @apiParam {Number} id Call unique ID.
-   * @apiParam {String="explicit","infirmFinalConfirmation","bookingNotConfirmed","notUnderstood"} reason The reason of the transfer.
-   *
-   * @apiSuccess {Boolean} transfered True if call was successfully transfered. False otherwise.
+   * @apiParam {String} callId Unique ID of the call.
+   * @apiParam {String="TRANSFER_ASKED_BY_USER", "CALL_DISCONNECTED_BEFORE_BEING_DONE", "TRANSFER_AFTER_TO_MANY_NOT_UNDERSTOOD","TRANSFER_AFTER_ERROR"} reason The reason of the transfer.
    *
    * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "transfered": true
-   *     }
+   *     HTTP 200 OK
    *
-   * @apiError MissingParameter id, to or reason parameter is missing.
+   * @apiError 400 bad request, missing parameter <code>callId</code>.
+   * @apiError 404 Not found. No call found for the given <code>callId</code>.
    */
   .post(function (req, res) {
     if (req.params.id && req.query.reason) {

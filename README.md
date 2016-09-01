@@ -6,7 +6,7 @@ This is the API client should provide CallDesk to activate the CallDesk booking 
 Documentation
 -----
 
-  You can read the [API specifications](http://www.calldesk.fr/booking-client-api/) and use the github tools (Issues and Pull Requests) for support or modifications.
+  You can read the [API specifications](http://calldesk.github.io/booking-client-api/) and use the github tools (Issues and Pull Requests) for support or modifications.
 
 Nodejs code example
 -------
