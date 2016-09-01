@@ -22,10 +22,6 @@ app.use(express.static('doc'));
 
 const port = process.env.PORT || 8080;
 const router = express.Router();
-const _TWILIO_SECRETS = JSON.parse(fs.readFileSync('.twilio.json', { encoding: 'utf8' }));
-
-// TWILIO demo
-// const TWILIO = !!process.env.USE_TWILIO;
 
 // mock ressource database
 const ressources = {
@@ -79,7 +75,6 @@ function _respond (req, res, data) {
   res.json(data);
 }
 
-// TODO better document openHours
 router.route('/ressource/:id')
  /**
   * @api {get} /ressource/:ressourceId Request Ressource information
@@ -232,21 +227,27 @@ router.route('/call/:id')
    */
   .post(function (req, res) {
     if (req.params.id && req.query.reason) {
-      const callId = req.params.id;
-      const client = require('twilio')(_TWILIO_SECRETS.sid, _TWILIO_SECRETS.token);
-      const msg = "Merci d'avoir pris le temps de tester notre démonstration. A très bientôt.";
-      const url = format('%s?say=%s', _TWILIO_SECRETS.url, encodeURIComponent(msg));
-      console.info('transfer call#%s to %s', callId, url);
-      // encodeURIComponent(req.query.reason),
-      client.calls(callId).update({
-        url: url,
-        method: 'POST'
-      }, function (err, call) {
-        if (err) console.warn(err);
-        _respond(req, res, {
-          transfered: !err
+      if (fs.exists('.twilio.json')) {
+        const _TWILIO_SECRETS = JSON.parse(fs.readFileSync('.twilio.json', { encoding: 'utf8' }));
+        const callId = req.params.id;
+        const client = require('twilio')(_TWILIO_SECRETS.sid, _TWILIO_SECRETS.token);
+        const msg = "Merci d'avoir pris le temps de tester notre démonstration. A très bientôt.";
+        const url = format('%s?say=%s', _TWILIO_SECRETS.url, encodeURIComponent(msg));
+        console.info('transfer call#%s to %s', callId, url);
+        client.calls(callId).update({
+          url: url,
+          method: 'POST'
+        }, function (err, call) {
+          if (err) console.warn(err);
+          _respond(req, res, {
+            transfered: !err
+          });
         });
-      });
+      } else {
+        _respond(req, res, {
+          transfered: false
+        });
+      }
     } else {
       res.status(404);
       _respond(req, res, {
@@ -255,54 +256,6 @@ router.route('/call/:id')
       });
     }
   });
-
-// if (TWILIO) {
-//   var xml = require('xml');
-//   router.route('/twilio/answer').get(function (req, res) {
-//     var callId = req.query['CallSid'];
-//     // see https://www.twilio.com/docs/api/twiml/sip
-//     var xmlRes = xml({
-//       Response: [
-//         {
-//           Dial: [
-//             {
-//               Sip:
-//                 // 'sip:9992522656@sip.tropo.com' +
-//                 'sip:vgire151204092000@phone.plivo.com' +
-//                 '?callId=' + callId +
-//                 '&callerNumber=+33630703232' +
-//                 '&callerGuessedName=Pierre David' +
-//                 '&ressourceId=2' +
-//                 '&apiPath=http://82.225.244.55:8080/v1&apiToken=klet'
-//             }
-//           ]
-//         }
-//       ]
-//     }, { declaration: true });
-//     console.log(xmlRes);
-//     res.setHeader('Content-Type', 'application/xml');
-//     res.send(xmlRes);
-//   });
-//   router.route('/twilio/redirect').get(function (req, res) {
-//     // TODO redirect to sip:mac151204192216@phone.plivo.com
-//     // see https://www.twilio.com/docs/api/twiml/sip
-//     var xmlRes = xml({
-//       Response: [
-//         {
-//           Dial: [
-//             {
-//               Sip: 'sip:mac151204192216@phone.plivo.com' +
-//                 '?reason=' + encodeURIComponent(req.query.reason)
-//             }
-//           ]
-//         }
-//       ]
-//     }, { declaration: true });
-//     console.log(xmlRes);
-//     res.setHeader('Content-Type', 'application/xml');
-//     res.send(xmlRes);
-//   });
-// }
 
 app.use('/v1', router); // all of our routes will be prefixed with /api
 app.listen(port);
