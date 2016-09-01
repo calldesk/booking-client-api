@@ -9,7 +9,7 @@
     "doc": "apidoc -i src/",
     "install": "babel -d lib/ src/",
     "preversion": "npm run coverage && npm run doc",
-    "postversion": "git push origin master && git push origin master --tags && git push -f origin master:gh-pages",
+    "postversion": "git push origin master && git push origin master --tags && node publish.js",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
     "coverage": "babel-istanbul cover _mocha && babel-istanbul check-coverage --statement 90",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.7.0",
     "expect.js": "^0.3.1",
+    "gh-pages": "^0.11.0",
     "nock": "^8.0.0",
     "pre-commit": "^1.1.2",
     "sinon": "^1.17.4"
