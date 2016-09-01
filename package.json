@@ -9,7 +9,7 @@
     "doc": "apidoc -i src/",
     "install": "babel -d lib/ src/",
     "preversion": "npm run coverage && npm run doc",
-    "postversion": "git push origin master && git push origin gh-pages && git push origin master --tags",
+    "postversion": "git push origin master && git push origin master --tags && git push -f origin master:gh-pages",
     "prestart": "npm run doc",
     "start": "node lib/index.js",
     "coverage": "babel-istanbul cover _mocha && babel-istanbul check-coverage --statement 90",
