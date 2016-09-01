@@ -19,5 +19,3 @@ doc
 # builds
 lib
 coverage
-scripts
-publish.sh
