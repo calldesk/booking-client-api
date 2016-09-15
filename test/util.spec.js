@@ -2,7 +2,7 @@
 // @flow
 'use strict';
 const moment = require('moment-timezone');
-const expect = require('expect.js');
+const expect = require('chai').expect;
 const getNextSlots = require('../src/util').getNextSlots;
 
 const CALENDAR = [
